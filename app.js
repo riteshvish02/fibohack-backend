@@ -3,10 +3,24 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-app.use(cors({
-  origin: "http://localhost:5173",
+const allowedOrigins = [
+  'http://localhost:5173',  // for local development
+  'https://fibohack-evently.vercel.app' // for production
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.includes(origin) || !origin) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
 const indexRouter = require("./router/indexRouter");
 require("./models/db").connectDatabase();
 const expressSession = require("express-session");
